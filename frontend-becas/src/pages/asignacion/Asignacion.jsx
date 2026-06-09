@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Pagination from "../../components/Pagination";
 import { getAsignaciones, deleteAsignacion } from "../../api/asignacion.api";
+import DropdownMenu from "../../components/DropdownMenu";
 
 const Asignacion = () => {
   const [asignaciones, setAsignaciones] = useState([]);
@@ -11,6 +12,7 @@ const Asignacion = () => {
   const [total, setTotal] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const cargar = async (p = 1) => {
     setCargando(true);
@@ -123,29 +125,30 @@ const Asignacion = () => {
                       </span>
                     </td>
                     <td className="px-6 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Link
-                          to={`/asignacion/${a.id_asignacion}/evaluacion`}
-                          className="bg-blue-100 hover:bg-blue-200 text-blue-800
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Evaluar
-                        </Link>
-                        <Link
-                          to={`/asignacion/${a.id_asignacion}/estado`}
-                          className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Estado
-                        </Link>
-                        <button
-                          onClick={() => handleEliminar(a.id_asignacion)}
-                          className="bg-red-100 hover:bg-red-200 text-red-700
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
+                      <DropdownMenu
+                        opciones={[
+                          {
+                            label: "Evaluar",
+                            icon: "🗒️",
+                            accion: () =>
+                              navigate(
+                                `/asignacion/${a.id_asignacion}/evaluacion`,
+                              ),
+                          },
+                          {
+                            label: "Estado",
+                            icon: "🔛",
+                            accion: () =>
+                              navigate(`/asignacion/${a.id_asignacion}/estado`),
+                          },
+                          {
+                            label: "Eliminar",
+                            icon: "🗑",
+                            danger: true,
+                            accion: () => handleEliminar(a.id_asignacion),
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

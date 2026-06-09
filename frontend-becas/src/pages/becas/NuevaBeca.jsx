@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { createBeca, getTiposBeca, getDisciplinas } from "../../api/becas.api";
 import { getListaEstudiantes } from "../../api/estudiantes.api";
+import SelectCustom from "../../components/SelectCustom";
 
 const SUBTIPOS = ["PROMEDIO", "RESPONSABLE", "DISCIPLINA", "DISCAPACIDAD"];
 
@@ -210,13 +211,10 @@ const NuevaBeca = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tipo de beca *
               </label>
-              <select
+              <SelectCustom
                 name="id_tipo_beca"
                 value={form.id_tipo_beca}
                 onChange={handleChange}
-                required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5
-                  text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Seleccionar tipo...</option>
                 {tiposBeca.map((t) => (
@@ -224,7 +222,7 @@ const NuevaBeca = () => {
                     {t.nombre_beca}
                   </option>
                 ))}
-              </select>
+              </SelectCustom>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -284,18 +282,15 @@ const NuevaBeca = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Periodo *
                 </label>
-                <select
+                <SelectCustom
                   name="periodo"
                   value={form.periodo}
                   onChange={handleChange}
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5
-                    text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccionar</option>
                   <option value="1">Periodo 1</option>
                   <option value="2">Periodo 2</option>
-                </select>
+                </SelectCustom>
               </div>
             </div>
 
@@ -517,12 +512,10 @@ const NuevaBeca = () => {
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     Disciplina
                   </label>
-                  <select
+                  <SelectCustom
                     name="id_disciplina"
                     value={datosSubtipo.id_disciplina}
                     onChange={handleSubtipoChange}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2
-                      text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Seleccionar disciplina...</option>
                     {disciplinas.map((d) => (
@@ -530,7 +523,7 @@ const NuevaBeca = () => {
                         {d.nombre_disciplina}
                       </option>
                     ))}
-                  </select>
+                  </SelectCustom>
                 </div>
               </div>
             )}

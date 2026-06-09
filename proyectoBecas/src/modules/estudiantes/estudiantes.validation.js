@@ -32,8 +32,8 @@ const validarCrear = [
 
   body("gestion_inicio")
     .optional()
-    .isInt({ min: 1900 })
-    .withMessage("La gestión debe ser mayor a 1900"),
+    .isInt({ min: 1966 })
+    .withMessage("La gestión debe ser mayor a 1966"),
 
   body("periodo_inicio")
     .optional()

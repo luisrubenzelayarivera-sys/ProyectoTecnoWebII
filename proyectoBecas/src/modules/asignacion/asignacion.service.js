@@ -62,6 +62,20 @@ const obtenerPorId = async (id) => {
 const crear = async (datos) => {
   const { id_beca, id_area, id_pre_registro, horas_semana } = datos;
 
+  const existe = await pool.query(
+    `SELECT id_asignacion FROM asignacion 
+     WHERE id_beca = $1 AND id_area = $2 AND estado = true`,
+    [id_beca, id_area],
+  );
+
+  if (existe.rows[0]) {
+    const err = new Error(
+      "Este estudiante ya tiene una asignación activa en esta área",
+    );
+    err.status = 400;
+    throw err;
+  }
+
   const result = await pool.query(
     `INSERT INTO asignacion (id_beca, id_area, id_pre_registro, horas_semana)
      VALUES ($1, $2, $3, $4)

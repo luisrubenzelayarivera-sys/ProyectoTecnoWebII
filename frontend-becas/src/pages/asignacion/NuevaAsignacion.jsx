@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { createAsignacion, getAreas } from "../../api/asignacion.api";
 import { getListaBecas } from "../../api/becas.api";
+import SelectCustom from "../../components/SelectCustom";
 
 const NuevaAsignacion = () => {
   const navigate = useNavigate();
@@ -184,13 +185,10 @@ const NuevaAsignacion = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Área *
                 </label>
-                <select
+                <SelectCustom
                   name="id_area"
                   value={form.id_area}
                   onChange={handleChange}
-                  required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5
-      text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccionar área...</option>
                   {areas.map((a) => (
@@ -199,7 +197,7 @@ const NuevaAsignacion = () => {
                       {a.ubicacion_campus ? `— ${a.ubicacion_campus}` : ""}
                     </option>
                   ))}
-                </select>
+                </SelectCustom>
               </div>
 
               <div>

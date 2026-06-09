@@ -13,6 +13,9 @@ const login = async (email, password) => {
 
   const usuario = result.rows[0];
   if (!usuario) {
+    console.warn(
+      `[SEGURIDAD] Login fallido — Email no encontrado: ${email} — ${new Date().toISOString()}`,
+    );
     const err = new Error("Credenciales inválidas");
     err.status = 401;
     throw err;
@@ -20,6 +23,9 @@ const login = async (email, password) => {
 
   const passwordValido = await bcrypt.compare(password, usuario.password_hash);
   if (!passwordValido) {
+    console.warn(
+      `[SEGURIDAD] Login fallido — Password incorrecto: ${email} — ${new Date().toISOString()}`,
+    );
     const err = new Error("Credenciales inválidas");
     err.status = 401;
     throw err;

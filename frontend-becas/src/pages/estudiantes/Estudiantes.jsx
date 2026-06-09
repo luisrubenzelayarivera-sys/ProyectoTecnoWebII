@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Pagination from "../../components/Pagination";
 import { getEstudiantes, deleteEstudiante } from "../../api/estudiantes.api";
+import DropdownMenu from "../../components/DropdownMenu";
 
 const Estudiantes = () => {
   const [estudiantes, setEstudiantes] = useState([]);
@@ -11,6 +12,7 @@ const Estudiantes = () => {
   const [total, setTotal] = useState(0);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const cargar = async (p = 1) => {
     setCargando(true);
@@ -115,22 +117,22 @@ const Estudiantes = () => {
                       {e.telefono ?? "—"}
                     </td>
                     <td className="px-6 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Link
-                          to={`/estudiantes/${e.id_estudiante}`}
-                          className="bg-blue-100 hover:bg-blue-200 text-blue-800
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Ver
-                        </Link>
-                        <button
-                          onClick={() => handleEliminar(e.id_estudiante)}
-                          className="bg-red-100 hover:bg-red-200 text-red-700
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
+                      <DropdownMenu
+                        opciones={[
+                          {
+                            label: "Ver detalle",
+                            icon: "👁",
+                            accion: () =>
+                              navigate(`/estudiantes/${e.id_estudiante}`),
+                          },
+                          {
+                            label: "Eliminar",
+                            icon: "🗑",
+                            danger: true,
+                            accion: () => handleEliminar(e.id_estudiante),
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

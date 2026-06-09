@@ -1,9 +1,14 @@
+const validarEnv = require("./config/env");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
 const express = require("express");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 const errorHandler = require("./middlewares/error.middleware");
 require("dotenv").config();
+validarEnv();
 
 const app = express();
 
@@ -18,6 +23,32 @@ app.use(express.json());
 
 // ── Documentación Swagger ─────────────────────
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// ── Seguridad HTTP headers ────────────────────
+app.use(helmet());
+
+// ── Prevenir HTTP Parameter Pollution ────────
+app.use(hpp());
+
+// ── Rate limiting global ──────────────────────
+const limiterGeneral = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100,
+  message: { error: "Demasiadas peticiones, intenta de nuevo en 15 minutos" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api", limiterGeneral);
+
+// ── Rate limiting estricto para login ─────────
+const limiterLogin = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: "Demasiados intentos de login, intenta en 15 minutos" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api/v1/auth/login", limiterLogin);
 
 // ── Rutas ─────────────────────────────────────
 app.use("/api/v1/auth", require("./modules/auth/auth.routes"));

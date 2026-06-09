@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Pagination from "../../components/Pagination";
 import { getBecas, deleteBeca, getTiposBeca } from "../../api/becas.api";
+import DropdownMenu from "../../components/DropdownMenu";
 
 const colorEstado = (estado) => {
   switch (estado) {
@@ -29,6 +30,7 @@ const Becas = () => {
   const [filtroEstado, setFiltroEstado] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [tiposBeca, setTiposBeca] = useState([]);
+  const navigate = useNavigate();
 
   const cargar = async (p = 1) => {
     setCargando(true);
@@ -189,36 +191,33 @@ const Becas = () => {
                       </span>
                     </td>
                     <td className="px-6 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <Link
-                          to={`/becas/${b.id_beca}`}
-                          className="bg-blue-100 hover:bg-blue-200 text-blue-800
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Ver
-                        </Link>
-                        <Link
-                          to={`/becas/${b.id_beca}/subtipo`}
-                          className="bg-purple-100 hover:bg-purple-200 text-purple-800
-        px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Subtipo
-                        </Link>
-                        <Link
-                          to={`/becas/${b.id_beca}/estado`}
-                          className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Estado
-                        </Link>
-                        <button
-                          onClick={() => handleEliminar(b.id_beca)}
-                          className="bg-red-100 hover:bg-red-200 text-red-700
-                            px-3 py-1 rounded-lg text-xs font-medium transition"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
+                      <DropdownMenu
+                        opciones={[
+                          {
+                            label: "Ver detalle",
+                            icon: "👁",
+                            accion: () => navigate(`/becas/${b.id_beca}`),
+                          },
+                          {
+                            label: "Agregar subtipo",
+                            icon: "➕",
+                            accion: () =>
+                              navigate(`/becas/${b.id_beca}/subtipo`),
+                          },
+                          {
+                            label: "Cambiar estado",
+                            icon: "🔄",
+                            accion: () =>
+                              navigate(`/becas/${b.id_beca}/estado`),
+                          },
+                          {
+                            label: "Eliminar",
+                            icon: "🗑",
+                            danger: true,
+                            accion: () => handleEliminar(b.id_beca),
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

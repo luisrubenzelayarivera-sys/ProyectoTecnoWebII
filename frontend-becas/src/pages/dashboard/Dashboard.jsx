@@ -7,6 +7,8 @@ import {
   getEvaluaciones,
   getInfoGeneral,
 } from "../../api/reportes.api";
+import KPICard from "../../components/KPICard";
+import SelectCustom from "../../components/SelectCustom";
 
 const colorEstado = (estado) => {
   switch (estado) {
@@ -42,11 +44,28 @@ const Dashboard = () => {
   const [tab, setTab] = useState("resumen");
 
   useEffect(() => {
+    if (cargando) return;
+    const recargarTodo = async () => {
+      try {
+        const [estados, tipos] = await Promise.all([
+          getEstadosBecas(filtroTipo, filtroPeriodo),
+          getTiposReporte(filtroPeriodo),
+        ]);
+        setEstadosBecas(estados.data);
+        setTiposBecas(tipos.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    recargarTodo();
+  }, [filtroTipo, filtroPeriodo, cargando]);
+
+  useEffect(() => {
     const cargar = async () => {
       try {
         const [estados, tipos, evals, info] = await Promise.all([
           getEstadosBecas(),
-          getTiposReporte(),
+          getTiposReporte(filtroPeriodo),
           getEvaluaciones(1, 5),
           getInfoGeneral(),
         ]);
@@ -62,7 +81,7 @@ const Dashboard = () => {
       }
     };
     cargar();
-  }, []);
+  }, [filtroPeriodo]);
 
   const cargarEvaluaciones = async (p) => {
     const res = await getEvaluaciones(p, 5);
@@ -72,9 +91,9 @@ const Dashboard = () => {
   };
 
   // Filtros sobre tipos de beca
-  const tiposFiltrados = tiposBecas
-    .filter((t) => !filtroTipo || t.nombre_beca === filtroTipo)
-    .filter((t) => !filtroPeriodo || true); // periodo se aplica en BD, aquí es ilustrativo
+  const tiposFiltrados = tiposBecas.filter(
+    (t) => !filtroTipo || t.nombre_beca === filtroTipo,
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,11 +133,9 @@ const Dashboard = () => {
               <div className="flex flex-col gap-6">
                 {/* Filtros */}
                 <div className="flex gap-3 items-center">
-                  <select
+                  <SelectCustom
                     value={filtroTipo}
                     onChange={(e) => setFiltroTipo(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Todos los tipos</option>
                     {tiposBecas.map((t) => (
@@ -126,18 +143,16 @@ const Dashboard = () => {
                         {t.nombre_beca}
                       </option>
                     ))}
-                  </select>
+                  </SelectCustom>
 
-                  <select
+                  <SelectCustom
                     value={filtroPeriodo}
                     onChange={(e) => setFiltroPeriodo(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm
-                      focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Todos los periodos</option>
                     <option value="1">Periodo I</option>
                     <option value="2">Periodo II</option>
-                  </select>
+                  </SelectCustom>
 
                   {(filtroTipo || filtroPeriodo) && (
                     <button
@@ -152,6 +167,15 @@ const Dashboard = () => {
                   )}
                 </div>
 
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {estadosBecas.map((item) => (
+                    <KPICard
+                      key={item.estado_beca}
+                      estado={item.estado_beca}
+                      total={item.total}
+                    />
+                  ))}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Estados */}
                   <div className="bg-white rounded-2xl shadow p-6">
@@ -187,18 +211,26 @@ const Dashboard = () => {
                       {tiposFiltrados.map((item) => (
                         <div
                           key={item.nombre_beca}
-                          className="flex items-center justify-between border-b pb-2"
+                          className={`flex items-center justify-between border-b pb-2
+      transition ${parseInt(item.total) === 0 ? "opacity-40" : ""}`}
                         >
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-700 font-medium">
                             {item.nombre_beca}
                           </span>
                           <div className="flex items-center gap-3">
-                            <span className="text-xs text-gray-400">
+                            <span
+                              className={`text-xs font-semibold
+        ${parseInt(item.total) > 0 ? "text-blue-700" : "text-gray-400"}`}
+                            >
                               Prom: {item.promedio_porcentaje ?? "—"}%
                             </span>
                             <span
-                              className="bg-blue-100 text-blue-800 px-2 py-0.5
-                              rounded-full text-sm font-semibold"
+                              className={`px-2 py-0.5 rounded-full text-sm font-bold
+        ${
+          parseInt(item.total) > 0
+            ? "bg-blue-100 text-blue-800"
+            : "bg-gray-100 text-gray-500"
+        }`}
                             >
                               {item.total}
                             </span>

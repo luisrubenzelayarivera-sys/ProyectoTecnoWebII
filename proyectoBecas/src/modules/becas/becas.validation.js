@@ -22,8 +22,8 @@ const validarCrear = [
   body("gestion")
     .notEmpty()
     .withMessage("La gestión es requerida")
-    .isInt({ min: 1900 })
-    .withMessage("La gestión debe ser mayor a 1900"),
+    .isInt({ min: 1966 })
+    .withMessage("La gestión debe ser mayor a 1966"),
 
   body("periodo")
     .notEmpty()
@@ -60,15 +60,15 @@ const validarCrear = [
     .if(body("subtipo").equals("PROMEDIO"))
     .notEmpty()
     .withMessage("La gestión obtenida es requerida para este subtipo")
-    .isInt({ min: 1900 })
-    .withMessage("La gestión debe ser mayor a 1900"),
+    .isInt({ min: 1966 })
+    .withMessage("La gestión debe ser mayor a 1966"),
 
   body("datos_subtipo.semestre_obtenido")
     .if(body("subtipo").equals("PROMEDIO"))
     .notEmpty()
     .withMessage("El semestre obtenido es requerido para este subtipo")
-    .isInt({ min: 1 })
-    .withMessage("El semestre debe ser un número positivo"),
+    .isInt({ min: 1, max: 2 })
+    .withMessage("El semestre debe ser 1 o 2"),
 
   body("datos_subtipo.id_disciplina")
     .if(body("subtipo").equals("DISCIPLINA"))

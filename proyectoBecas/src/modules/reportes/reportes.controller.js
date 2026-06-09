@@ -2,7 +2,7 @@ const reportesService = require("./reportes.service");
 
 const estadosBecas = async (req, res, next) => {
   try {
-    const data = await reportesService.estadosBecas();
+    const data = await reportesService.estadosBecas(req.query);
     res.status(200).json(data);
   } catch (err) {
     next(err);
@@ -11,7 +11,7 @@ const estadosBecas = async (req, res, next) => {
 
 const tiposBecas = async (req, res, next) => {
   try {
-    const data = await reportesService.tiposBecas();
+    const data = await reportesService.tiposBecas(req.query);
     res.status(200).json(data);
   } catch (err) {
     next(err);

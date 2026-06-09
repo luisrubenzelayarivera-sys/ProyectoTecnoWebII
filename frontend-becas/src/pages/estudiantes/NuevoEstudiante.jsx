@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import { createEstudiante, getCarreras } from "../../api/estudiantes.api";
+import SelectCustom from "../../components/SelectCustom";
 
 const NuevoEstudiante = () => {
   const navigate = useNavigate();
@@ -165,22 +166,19 @@ const NuevoEstudiante = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Carrera
                 </label>
-                <select
+                <SelectCustom
                   name="id_carrera"
                   value={form.id_carrera}
                   onChange={handleChange}
-                  placeholder="1"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5
-                    text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Seleccionar carrera...</option>
+                  <option value="">Elija carrera...</option>
                   {carreras.map((c) => (
                     <option key={c.id_carrera} value={c.id_carrera}>
                       {c.nombre_carrera}{" "}
                       {c.sigla_carrera ? `(${c.sigla_carrera})` : ""}
                     </option>
                   ))}
-                </select>
+                </SelectCustom>
               </div>
 
               <div>
@@ -202,17 +200,15 @@ const NuevoEstudiante = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Periodo inicio
                 </label>
-                <select
+                <SelectCustom
                   name="periodo_inicio"
                   value={form.periodo_inicio}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5
-                    text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccionar</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
-                </select>
+                </SelectCustom>
               </div>
             </div>
 

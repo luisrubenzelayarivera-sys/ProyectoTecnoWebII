@@ -1,30 +1,53 @@
 const pool = require("../../config/db");
 const paginar = require("../../config/pagination");
 
-const estadosBecas = async () => {
+const estadosBecas = async (query) => {
+  const { tipo, periodo } = query;
+
+  const conditions = ["b.estado = true"];
+  const params = [];
+  let idx = 1;
+
+  if (tipo) {
+    conditions.push(`tb.nombre_beca = $${idx++}`);
+    params.push(tipo);
+  }
+  if (periodo) {
+    conditions.push(`b.periodo = $${idx++}`);
+    params.push(parseInt(periodo));
+  }
+
+  const where = conditions.join(" AND ");
+
   const result = await pool.query(
-    `SELECT 
-       estado_beca,
-       COUNT(*) AS total
-     FROM becas
-     WHERE estado = true
-     GROUP BY estado_beca
+    `SELECT b.estado_beca, COUNT(*) AS total
+     FROM becas b
+     JOIN tipos_beca tb ON b.id_tipo_beca = tb.id_tipo_beca
+     WHERE ${where}
+     GROUP BY b.estado_beca
      ORDER BY total DESC`,
+    params,
   );
   return result.rows;
 };
 
-const tiposBecas = async () => {
+const tiposBecas = async (query) => {
+  const { periodo } = query;
+
   const result = await pool.query(
     `SELECT 
        tb.nombre_beca,
        COUNT(b.id_beca) AS total,
        ROUND(AVG(b.porcentaje), 2) AS promedio_porcentaje
      FROM tipos_beca tb
-     LEFT JOIN becas b ON tb.id_tipo_beca = b.id_tipo_beca AND b.estado = true
+     LEFT JOIN becas b ON tb.id_tipo_beca = b.id_tipo_beca 
+       AND b.estado = true
+       ${periodo ? "AND b.periodo = $1" : ""}
      GROUP BY tb.nombre_beca
      ORDER BY total DESC`,
+    periodo ? [parseInt(periodo)] : [],
   );
+
   return result.rows;
 };
 
