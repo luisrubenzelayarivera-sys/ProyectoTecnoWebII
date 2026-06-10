@@ -133,6 +133,8 @@ const crear = async (datos) => {
             ],
           );
           break;
+        default:
+          break;
       }
     }
 

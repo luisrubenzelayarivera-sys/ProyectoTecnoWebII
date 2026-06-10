@@ -45,7 +45,8 @@ const validarCrear = [
   body("observaciones").optional().trim(),
 
   body("subtipo")
-    .optional()
+    .optional({ nullable: true })
+    .if(body("subtipo").notEmpty())
     .isIn(["PROMEDIO", "RESPONSABLE", "DISCIPLINA", "DISCAPACIDAD"])
     .withMessage("Subtipo no válido"),
 

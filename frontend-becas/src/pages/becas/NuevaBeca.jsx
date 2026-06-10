@@ -5,7 +5,14 @@ import { createBeca, getTiposBeca, getDisciplinas } from "../../api/becas.api";
 import { getListaEstudiantes } from "../../api/estudiantes.api";
 import SelectCustom from "../../components/SelectCustom";
 
-const SUBTIPOS = ["PROMEDIO", "RESPONSABLE", "DISCIPLINA", "DISCAPACIDAD"];
+const SUBTIPO_POR_TIPO = {
+  PROMEDIO: "PROMEDIO",
+  DISCIPLINA: "DISCIPLINA",
+  DISCAPACIDAD: "DISCAPACIDAD",
+  RESPONSABLE: "RESPONSABLE",
+  "COMUNIDAD/SOCIOECONOMICA": null,
+  "RECTOR NACIONAL": null,
+};
 
 const NuevaBeca = () => {
   const navigate = useNavigate();
@@ -25,7 +32,6 @@ const NuevaBeca = () => {
     cod_doc_respaldo: "",
     declaracion_jurada: false,
     observaciones: "",
-    subtipo: "",
   });
 
   const [datosSubtipo, setDatosSubtipo] = useState({
@@ -40,6 +46,14 @@ const NuevaBeca = () => {
     porcentaje_disc: "",
     tipo_disc: "",
   });
+
+  // Calcular subtipo activo DENTRO del componente
+  const tipoSeleccionado = tiposBeca.find(
+    (t) => t.id_tipo_beca === parseInt(form.id_tipo_beca),
+  );
+  const subtipoActivo = tipoSeleccionado
+    ? (SUBTIPO_POR_TIPO[tipoSeleccionado.nombre_beca] ?? null)
+    : null;
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -78,6 +92,10 @@ const NuevaBeca = () => {
       (e.carnet && e.carnet.includes(busqueda)),
   );
 
+  const estudianteSeleccionado = estudiantes.find(
+    (e) => e.id_estudiante === form.id_estudiante,
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -93,8 +111,8 @@ const NuevaBeca = () => {
         cod_doc_respaldo: form.cod_doc_respaldo || null,
         declaracion_jurada: form.declaracion_jurada,
         observaciones: form.observaciones || null,
-        subtipo: form.subtipo || null,
-        datos_subtipo: form.subtipo ? datosSubtipo : null,
+        subtipo: subtipoActivo,
+        datos_subtipo: subtipoActivo ? datosSubtipo : null,
       };
 
       await createBeca(datos);
@@ -109,10 +127,6 @@ const NuevaBeca = () => {
       setCargando(false);
     }
   };
-
-  const estudianteSeleccionado = estudiantes.find(
-    (e) => e.id_estudiante === form.id_estudiante,
-  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -150,11 +164,10 @@ const NuevaBeca = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5
                   text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {/* Lista de resultados */}
-              {busqueda && (
+              {busqueda && !form.id_estudiante && (
                 <div
-                  className="border border-gray-200 rounded-lg mt-1 max-h-48
-                  overflow-y-auto shadow-sm"
+                  className="border border-gray-200 rounded-lg mt-1
+                  max-h-48 overflow-y-auto shadow-sm"
                 >
                   {estudiantesFiltrados.length === 0 ? (
                     <p className="text-gray-400 text-sm px-4 py-3">
@@ -185,7 +198,6 @@ const NuevaBeca = () => {
                   )}
                 </div>
               )}
-              {/* Estudiante seleccionado */}
               {estudianteSeleccionado && (
                 <div
                   className="mt-2 bg-blue-50 border border-blue-200
@@ -244,7 +256,6 @@ const NuevaBeca = () => {
                     text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Código documento
@@ -277,7 +288,6 @@ const NuevaBeca = () => {
                     text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Periodo *
@@ -311,12 +321,12 @@ const NuevaBeca = () => {
 
             <div
               className={`flex items-center gap-3 px-4 py-3 rounded-xl
-              border-2 cursor-pointer transition
-              ${
-                form.declaracion_jurada
-                  ? "bg-green-50 border-green-300"
-                  : "bg-gray-50 border-gray-200"
-              }`}
+                border-2 cursor-pointer transition
+                ${
+                  form.declaracion_jurada
+                    ? "bg-green-50 border-green-300"
+                    : "bg-gray-50 border-gray-200"
+                }`}
               onClick={() =>
                 setForm({
                   ...form,
@@ -336,55 +346,19 @@ const NuevaBeca = () => {
               </span>
             </div>
 
-            {/* Subtipo */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Subtipo de beca
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, subtipo: "" })}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border-2
-                    transition ${
-                      !form.subtipo
-                        ? "bg-blue-800 text-white border-blue-800"
-                        : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-                    }`}
-                >
-                  Sin subtipo
-                </button>
-                {SUBTIPOS.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setForm({ ...form, subtipo: s })}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium border-2
-                      transition ${
-                        form.subtipo === s
-                          ? "bg-blue-800 text-white border-blue-800"
-                          : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-                      }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Datos subtipo PROMEDIO */}
-            {form.subtipo === "PROMEDIO" && (
+            {/* Campos dinámicos según tipo de beca */}
+            {subtipoActivo === "PROMEDIO" && (
               <div
                 className="border border-blue-200 rounded-xl p-4 bg-blue-50
                 flex flex-col gap-4"
               >
                 <p className="text-sm font-semibold text-blue-800">
-                  Datos — Beca por Promedio
+                  📊 Datos de beca por Promedio
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Promedio mantenido
+                      Promedio mantenido *
                     </label>
                     <input
                       type="number"
@@ -395,13 +369,13 @@ const NuevaBeca = () => {
                       max="100"
                       step="0.01"
                       placeholder="85.5"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2
                         text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Gestión obtenido
+                      Gestión obtenido *
                     </label>
                     <input
                       type="number"
@@ -409,13 +383,13 @@ const NuevaBeca = () => {
                       value={datosSubtipo.gestion_obtenido}
                       onChange={handleSubtipoChange}
                       placeholder="2023"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2
                         text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Semestre obtenido
+                      Semestre obtenido *
                     </label>
                     <input
                       type="number"
@@ -423,7 +397,7 @@ const NuevaBeca = () => {
                       value={datosSubtipo.semestre_obtenido}
                       onChange={handleSubtipoChange}
                       placeholder="2"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2
                         text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -431,19 +405,18 @@ const NuevaBeca = () => {
               </div>
             )}
 
-            {/* Datos subtipo RESPONSABLE */}
-            {form.subtipo === "RESPONSABLE" && (
+            {subtipoActivo === "RESPONSABLE" && (
               <div
                 className="border border-blue-200 rounded-xl p-4 bg-blue-50
                 flex flex-col gap-4"
               >
                 <p className="text-sm font-semibold text-blue-800">
-                  Datos — Beca por Responsable
+                  👤 Datos de beca por Responsable
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Nombre responsable
+                      Nombre responsable *
                     </label>
                     <input
                       type="text"
@@ -451,7 +424,7 @@ const NuevaBeca = () => {
                       value={datosSubtipo.responsable_beca}
                       onChange={handleSubtipoChange}
                       placeholder="Nombre del responsable"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2
                         text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -465,19 +438,19 @@ const NuevaBeca = () => {
                       value={datosSubtipo.antiguedad}
                       onChange={handleSubtipoChange}
                       placeholder="5"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2
                         text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
                 <div
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg
-                  border cursor-pointer transition
-                  ${
-                    datosSubtipo.hor_completo
-                      ? "bg-green-50 border-green-300"
-                      : "bg-white border-gray-200"
-                  }`}
+                    border cursor-pointer transition
+                    ${
+                      datosSubtipo.hor_completo
+                        ? "bg-green-50 border-green-300"
+                        : "bg-white border-gray-200"
+                    }`}
                   onClick={() =>
                     setDatosSubtipo({
                       ...datosSubtipo,
@@ -499,23 +472,25 @@ const NuevaBeca = () => {
               </div>
             )}
 
-            {/* Datos subtipo DISCIPLINA */}
-            {form.subtipo === "DISCIPLINA" && (
+            {subtipoActivo === "DISCIPLINA" && (
               <div
                 className="border border-blue-200 rounded-xl p-4 bg-blue-50
                 flex flex-col gap-4"
               >
                 <p className="text-sm font-semibold text-blue-800">
-                  Datos — Beca por Disciplina
+                  🏅 Datos de beca por Disciplina
                 </p>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Disciplina
+                    Disciplina *
                   </label>
-                  <SelectCustom
+                  <select
                     name="id_disciplina"
                     value={datosSubtipo.id_disciplina}
                     onChange={handleSubtipoChange}
+                    className="w-full appearance-none bg-white border border-gray-200
+                      rounded-xl px-4 py-2.5 text-sm focus:outline-none
+                      focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Seleccionar disciplina...</option>
                     {disciplinas.map((d) => (
@@ -523,19 +498,18 @@ const NuevaBeca = () => {
                         {d.nombre_disciplina}
                       </option>
                     ))}
-                  </SelectCustom>
+                  </select>
                 </div>
               </div>
             )}
 
-            {/* Datos subtipo DISCAPACIDAD */}
-            {form.subtipo === "DISCAPACIDAD" && (
+            {subtipoActivo === "DISCAPACIDAD" && (
               <div
                 className="border border-blue-200 rounded-xl p-4 bg-blue-50
                 flex flex-col gap-4"
               >
                 <p className="text-sm font-semibold text-blue-800">
-                  Datos — Beca por Discapacidad
+                  ♿ Datos de beca por Discapacidad
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -548,13 +522,13 @@ const NuevaBeca = () => {
                       value={datosSubtipo.carnet_discapacidad}
                       onChange={handleSubtipoChange}
                       placeholder="DISC-001"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2
                         text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Porcentaje discapacidad
+                      Porcentaje discapacidad *
                     </label>
                     <input
                       type="number"
@@ -564,14 +538,14 @@ const NuevaBeca = () => {
                       min="0"
                       max="100"
                       placeholder="30"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2
                         text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Tipo de discapacidad
+                    Tipo de discapacidad *
                   </label>
                   <input
                     type="text"
@@ -579,10 +553,21 @@ const NuevaBeca = () => {
                     value={datosSubtipo.tipo_disc}
                     onChange={handleSubtipoChange}
                     placeholder="Visual, motriz, auditiva..."
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2
                       text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+              </div>
+            )}
+
+            {/* Mensaje para tipos sin datos extra */}
+            {form.id_tipo_beca && subtipoActivo === null && (
+              <div
+                className="bg-gray-50 border border-gray-200 rounded-xl
+                px-4 py-3 text-sm text-gray-500 flex items-center gap-2"
+              >
+                <span>✅</span>
+                <span>Este tipo de beca no requiere datos adicionales.</span>
               </div>
             )}
 
